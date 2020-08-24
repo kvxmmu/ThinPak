@@ -19,7 +19,7 @@ Useful pack of C++17 libraries
    - PipeSleeper
 
 5) Copyable buffer
-   - CopyableBuffer<T\, >
+   - CopyableBuffer<T\>
    - CopyableCharBuffer<size\> - CopyableBuffer<char, size>
    - CopyableUint8Buffer<size\> - CopyableBuffer<uint8_t, size>
    - CopyableSizeBuffer<size\> - CopyableBuffer<size_t, size>
