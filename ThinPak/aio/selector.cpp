@@ -4,11 +4,24 @@
 
 #include "selector.hpp"
 
+
+/// Helpers
+
+void set_nonblock(int fd) {
+    int flags = fcntl(fd, F_GETFL, 0);
+    fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+}
+
+/// EpollSelector
+
+
 void EpollSelector::add(int fd, uint32_t events) {
     if (this->fds.find(fd) == this->fds.end()) {
         epoll_event ev{};
         ev.data.fd = fd;
         ev.events = events;
+
+        set_nonblock(fd);
 
         if (epoll_ctl(this->epfd, EPOLL_CTL_ADD, fd, &ev) != 0) {
             perror("EpollSelector::add()");
@@ -38,7 +51,9 @@ void EpollSelector::modify(int fd, uint32_t events) {
 
 void EpollSelector::remove(int fd, uint32_t events,
                            bool just_remove) {
-    if (just_remove) {
+    uint32_t flags = this->fds.at(fd);
+
+    if (just_remove || flags == events) {
         epoll_event ev{};
         ev.data.fd = fd;
         ev.events = this->fds.at(fd);
@@ -60,4 +75,12 @@ size_t EpollSelector::wait(int timeout) {
             timeout);
 
     return nfds;
+}
+
+bool EpollSelector::has_flag(int fd, uint32_t flag) {
+    if (this->fds.find(fd) == this->fds.end()) {
+        return false;
+    }
+
+    return (this->fds.at(fd) & flag) == flag;
 }

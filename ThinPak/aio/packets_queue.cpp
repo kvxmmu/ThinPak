@@ -101,6 +101,10 @@ QueueItem PacketsQueue::create_item(char *buffer, size_t size) {
 void PacketsQueue::push(int fd, const QueueItem &item) {
     this->create_if_not_exists(fd);
 
+    if (!this->selector.has_flag(fd, EPOLLOUT)) {
+        this->selector.add(fd, EPOLLOUT);
+    }
+
     this->queues.at(fd).push_back(item);
 }
 
@@ -118,6 +122,7 @@ void PacketsQueue::pop(int fd) {
     }
 
     queue.pop_front();
+    this->selector.remove(fd, EPOLLOUT);
 
     this->remove_if_empty(fd);
 }

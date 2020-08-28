@@ -8,12 +8,16 @@
 
 #include <sys/types.h>
 #include <sys/epoll.h>
+#include <fcntl.h>
 
 #include <unordered_map>
 
 #ifndef MAX_EPOLL_SIZE
 # define MAX_EPOLL_SIZE 4096
 #endif
+
+
+void set_nonblock(int fd);
 
 
 class EpollSelector {
@@ -31,6 +35,8 @@ public:
     void modify(int fd, uint32_t events);
     void remove(int fd, uint32_t events,
             bool just_remove = false);
+
+    bool has_flag(int fd, uint32_t flag);
 
     size_t wait(int timeout = -1);
 };
